@@ -60,7 +60,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http.authorizeRequests(authorizeRequests -> authorizeRequests
+        http.authorizeHttpRequests(authorizeRequests -> authorizeRequests
                                 .requestMatchers(HttpMethod.GET, "/isAlive" ).permitAll()
                                 // to become authorized, a principal (e.g. user, device, system)
                                 // must have the authority ROLE_USER assigned
