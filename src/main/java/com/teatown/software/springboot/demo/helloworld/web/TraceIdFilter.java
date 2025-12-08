@@ -1,5 +1,6 @@
 package com.teatown.software.springboot.demo.helloworld.web;
 
+import ch.qos.logback.classic.Level;
 import io.micrometer.tracing.TraceContext;
 import io.micrometer.tracing.Tracer;
 import jakarta.annotation.Nullable;
@@ -23,6 +24,13 @@ public class TraceIdFilter extends OncePerRequestFilter {
     @Autowired
     public TraceIdFilter(final Tracer tracer) {
         this.tracer = tracer;
+
+        log.debug("we never see this message");
+        // A Logger has a Level, which can be set either via configuration or with Logger.setLevel().
+        // Setting the level in code overrides configuration files
+        // Note: this works because we know the underlying logger implementation is Logback
+        ((ch.qos.logback.classic.Logger) log).setLevel(Level.DEBUG);
+        log.debug("but we always see this message");
     }
 
     @Override
