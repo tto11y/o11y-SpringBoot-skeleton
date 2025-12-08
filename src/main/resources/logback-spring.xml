@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- imports the base configuration for Logback from Spring Boot -->
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+    <include resource="org/springframework/boot/logging/logback/default.xml"/>
+
+
+    <property name="LOGS" value="./logs" />
+
+    <!-- this log appender uses an instance of type RollingFileAppender to print log lines into a log file, -->
+    <!-- that is referenced by the filepath specified between the opening and closing <file> tag -->
+    <appender name="RollingFile"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- the filepath of the log file (will be created if it does not exit yet) -->
+        <file>${LOGS}/demo-logs.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+
+            <!-- todo improve colors; can I just use the default Spring Boot settings?? -->
+            <!-- d ... date -->
+            <!-- p ... level -->
+            <!-- C ... class -->
+            <!-- m ... message -->
+            <!-- todo n ... ?? -->
+            <Pattern>%d %p %C{1} [%t] %m%n</Pattern>
+        </encoder>
+
+        <rollingPolicy
+                class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rollover daily and when the file reaches 10 MegaBytes -->
+            <fileNamePattern>${LOGS}/archived/demo-logs-%d{yyyy-MM-dd}.%i.log
+            </fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+
+    <!-- todo do I need to configure something in the Appender ??   -->
+    <!-- defines an additional appender called OTEL, which sends all log events to the OpenTelemetry API -->
+    <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+    </appender>
+
+    <!-- LOG everything at INFO level -->
+    <!-- the appender 'OTEL' is added to the root logger, effectively sending all log entries to the OpenTelemetry API in addition to the console -->
+    <root level="info">
+        <appender-ref ref="RollingFile" />
+        <appender-ref ref="OTEL"/>
+    </root>
+
+    <!-- LOG "com.teatown.software.springboot.demo.application.security*" at TRACE level -->
+    <logger name="com.teatown.software.springboot.demo.application.security" level="trace" additivity="false">
+        <appender-ref ref="RollingFile" />
+        <appender-ref ref="OTEL"/>
+    </logger>
+
+</configuration>
