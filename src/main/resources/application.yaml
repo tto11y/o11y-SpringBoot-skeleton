@@ -15,20 +15,21 @@ logging:
 management:
   tracing:
     sampling:
-      probability: 1.0 # todo what is this property used for?? deduplication??  (For demo only)
+# todo this prevented traces from being shown in Grafana frontend => why?
+      probability: 1.0 # Probability in the range from 0.0 to 1.0 that a trace will be sampled. (default: 0.1)
     export:
       enabled: true # (default) Whether auto-configuration of tracing is enabled to export and propagate traces.
       otlp:
-        enabled: true # (default) Whether auto-configuration of tracing is enabled to export OTLP traces.
-#  logging:
-#    export:
-#      otlp:
-#        enabled: true
+        enabled: true # (default) Whether auto-configuration of tracing is enabled to export traces over OTLP.
+  logging:
+    export:
+      enabled: true # (default) Whether auto-configuration of logging is enabled to export logs.
+      otlp:
+        enabled: true # (default) Whether auto-configuration of logging is enabled to export logs over OTLP.
 
-  # todo what is this property used for??
   observations:
     annotations:
-      enabled: true
+      enabled: true # Whether auto-configuration of Micrometer annotations is enabled. (default: false)
 
   otlp:
     metrics:
@@ -45,13 +46,15 @@ management:
     tracing:
       export:
         otlp:
-          # todo just HTTP ?!
-          # todo probably not because there is also there is bean declaration of type OtlpGrpcSpanExporter in OtlpTracingConfigurations
+#          endpoint: http://localhost:4317/v1/traces # URL to the OTel collector's HTTP API. (Note: gRPC uses HTTP/2)
+#          transport: grpc # (default) Transport used to send the spans. (http or grpc)
           endpoint: http://localhost:4318/v1/traces # URL to the OTel collector's HTTP API.
           transport: http # (default) Transport used to send the spans. (http or grpc)
 
-#    logging:
-#      export:
-#        otlp:
-#          endpoint: grpc://localhost:4317/v1/logs
+    logging:
+      export:
+        otlp:
+#          endpoint: http://localhost:4317/v1/logs # URL to the OTel collector's HTTP API. (Note: gRPC uses HTTP/2)
 #          transport: grpc
+          endpoint: http://localhost:4318/v1/logs # URL to the OTel collector's HTTP API.
+          transport: http
