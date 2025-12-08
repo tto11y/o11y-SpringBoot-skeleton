@@ -9,7 +9,8 @@ import org.springframework.boot.jdbc.autoconfigure.DataSourceTransactionManagerA
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
 public class DemoApplication {
 
-	static void main(String[] args) {
+    // todo Java 25 allows for non-public main methods but IntelliJ is not yet capable of scanning those
+	public static void main(String[] args) {
 		SpringApplication.run(DemoApplication.class, args);
 	}
 

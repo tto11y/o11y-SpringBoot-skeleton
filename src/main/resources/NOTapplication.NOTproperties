@@ -1,0 +1,13 @@
+spring.application.name=greeting-service
+server.port=8080
+logging.level.com.example=debug
+management.observations.annotations.enabled=true
+# For demo only
+management.tracing.sampling.probability=1.0
+management.otlp.metrics.export.step=10s
+
+
+logging.level.ROOT=INFO
+logging.level.org.springframework.security=TRACE
+
+management.opentelemetry.tracing.export.otlp.endpoint=http://localhost:4318/v1/traces

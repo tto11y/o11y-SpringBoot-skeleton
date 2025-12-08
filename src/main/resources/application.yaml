@@ -15,7 +15,7 @@ logging:
 management:
   tracing:
     sampling:
-# todo this prevented traces from being shown in Grafana frontend => why?
+ # todo this prevented traces from being shown in Grafana frontend => why?
       probability: 1.0 # Probability in the range from 0.0 to 1.0 that a trace will be sampled. (default: 0.1)
     export:
       enabled: true # (default) Whether auto-configuration of tracing is enabled to export and propagate traces.
