@@ -34,8 +34,6 @@
         </rollingPolicy>
     </appender>
 
-
-    <!-- todo do I need to configure something in the Appender ??   -->
     <!-- defines an additional appender called OTEL, which sends all log events to the OpenTelemetry API -->
     <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
     </appender>
