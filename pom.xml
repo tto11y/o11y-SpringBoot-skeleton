@@ -80,15 +80,14 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-opentelemetry</artifactId>
         </dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-		</dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
 
+		<!-- Note: For OTLP log exporting to work, the actuator dependency is required -->
+		<!-- Otherwise, the SdkLoggerProvider is not initialized with an instance of BatchLogRecordProcessor -->
+		<!-- Instead, it's initialized with a NoopLogRecordProcessor instance -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
         <!-- Note: currently, there is no stable version for the logback appender available -->
         <!-- see https://spring.io/blog/2025/11/18/opentelemetry-with-spring-boot#exporting-logs -->
         <!-- https://mvnrepository.com/artifact/io.opentelemetry.instrumentation/opentelemetry-logback-appender-1.0 -->
@@ -97,6 +96,15 @@
             <artifactId>opentelemetry-logback-appender-1.0</artifactId>
             <version>${opentelemetry-logback-appender.version}</version>
         </dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
