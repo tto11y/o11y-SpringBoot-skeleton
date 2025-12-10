@@ -9,8 +9,13 @@ import org.springframework.boot.jdbc.autoconfigure.DataSourceTransactionManagerA
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
 public class DemoApplication {
 
-    // todo Java 25 allows for non-public main methods but IntelliJ is not yet capable of scanning those
-	public static void main(String[] args) {
+	static void main(String[] args) {
+
+        // Note: You can explicitly specify a logging provider (i.e., an SLF4J implementation like Logback or Log4J)
+        //       via the system property "slf4j.provider"
+        //       see org.slf4j.LoggerFactory.loadExplicitlySpecified
+        //System.setProperty("slf4j.provider", "ch.qos.logback.classic.spi.LogbackServiceProvider");
+
 		SpringApplication.run(DemoApplication.class, args);
 	}
 
