@@ -52,7 +52,7 @@ services:
       - HTTP_PROXY=
 
   grafana:
-    image: grafana/grafana:11.0.0
+    image: grafana/grafana:12.3.0-19020365962
     entrypoint:
       - sh
       - -euc
