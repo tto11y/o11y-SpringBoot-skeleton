@@ -26,10 +26,6 @@ class InstallOpenTelemetryAppender implements InitializingBean {
     @Override
     public void afterPropertiesSet() {
 
-        // todo how can I assign a different LogRecordExporter ??
-        //  not NoopLogRecordExporter:
-        //  logRecordProcessor=BatchLogRecordProcessor{logRecordExporter=io.opentelemetry.sdk.logs.export.NoopLogRecordExporter@6879e983, scheduleDelayNanos=1000000000, maxExportBatchSize=512, exporterTimeoutNanos=30000000000}, loggerConfigurator=ScopeConfiguratorImpl{conditions=[]}}
-
         LOGGER.info("installing OpenTelemetry API instance ({}) in OpenTelemetryAppender", this.openTelemetry.toString());
         OpenTelemetryAppender.install(this.openTelemetry);
     }
