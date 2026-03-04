@@ -1,0 +1,26 @@
+{
+  "ollycol": {
+    "url_local": "http://alloy:4317",
+    "url_test": "http://myserver.local:4317",
+    "tls": {
+      "insecure": true,
+      "ca_file": "",
+      "ca_file_test": "/etc/alloy/certs/testCa.crt"
+    }
+  },
+  "otlp_receiver": {
+    "grpc": {
+      "endpoint": "0.0.0.0:4317"
+    },
+    "http": {
+      "endpoint": "0.0.0.0:4318"
+    },
+    "tls": {
+      "cert_file": "",
+      "key_file": ""
+    }
+  },
+  "traces_zipkin_receiver": {
+    "endpoint": "0.0.0.0:9411"
+  }
+}

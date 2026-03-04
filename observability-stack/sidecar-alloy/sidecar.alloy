@@ -1,0 +1,131 @@
+// ============================= endpoints
+local.file "endpoints" {
+    // define endpoints and credentials
+    filename = "/etc/alloy/endpoints.json"
+}
+
+// ============================= Alloy logs
+logging {
+	level = "info"
+    format = "logfmt"
+	write_to = [loki.relabel.sidecar_self.receiver]
+}
+
+loki.relabel "sidecar_self" {
+    forward_to = [loki.process.sidecar_self.receiver]
+
+	rule {
+		action       = "replace"
+		target_label = "service_name"
+		replacement  = "alloy_sidecar"
+  	}
+}
+
+loki.process "sidecar_self" {
+	forward_to = [otelcol.receiver.loki.sidecar_self.receiver]
+
+	stage.regex {
+		expression = "(level=(?P<log_level>[\\s]*debug|warn|info|error))"
+	}
+
+	stage.labels {
+		values = {
+			level = "log_level",
+		}
+	}
+
+	stage.static_labels {
+		values = {
+			service_namespace = "INT89",
+		}
+	}
+}
+
+otelcol.receiver.loki "sidecar_self" {
+  output {
+    logs = [otelcol.processor.batch.sidecar.input]
+  }
+}
+
+// ============================= Zipkin receiver
+otelcol.receiver.zipkin "sidecar" {
+	endpoint = json_path(local.file.endpoints.content, ".traces_zipkin_receiver.endpoint")[0]
+
+  	cors {
+		// allowed_headers = ["*"] // allows every HTTP header
+		allowed_headers = ["accept", "accept-language", "content-type", "content-language", "x-requested-with", "x-b3-spanid", "x-b3-sampled", "x-b3-traceid", "x-b3-parentspanid"]
+		allowed_origins = ["*"] 
+  	}
+
+ 	output {
+		// write trace data in OTLP format
+		traces = [otelcol.processor.batch.sidecar.input]
+  	}
+}
+
+// ============================= OTLP receiver
+otelcol.receiver.otlp "sidecar" {
+    grpc {
+		endpoint = json_path(local.file.endpoints.content, ".otlp_receiver.grpc.endpoint")[0]
+
+		// to leverage TLS-encrypted data ingestion,
+		// uncomment the tls block and provide a certificate and private key file path
+		// tls {
+		// 	cert_file = json_path(local.file.endpoints.content, ".otlp_receiver.tls.cert_file")[0]
+		// 	key_file = json_path(local.file.endpoints.content, ".otlp_receiver.tls.key_file")[0]
+		// }
+	}
+
+	http {
+		endpoint = json_path(local.file.endpoints.content, ".otlp_receiver.http.endpoint")[0]
+
+		// to leverage TLS-encrypted data ingestion,
+		// uncomment the tls block and provide a certificate and private key file path
+		// tls {
+		// 	cert_file = json_path(local.file.endpoints.content, ".otlp_receiver.tls.cert_file")[0]
+		// 	key_file = json_path(local.file.endpoints.content, ".otlp_receiver.tls.key_file")[0]
+		// }
+	}
+
+	output {
+		metrics = [otelcol.processor.batch.sidecar.input]
+		logs    = [otelcol.processor.batch.sidecar.input]
+		traces  = [otelcol.processor.batch.sidecar.input]
+	}
+}
+
+// ============================= OTLP processor
+otelcol.processor.batch "sidecar" {
+	send_batch_size     = 2000
+	send_batch_max_size = 4000
+	timeout             = "200ms"
+
+	output {
+		logs    = [otelcol.exporter.otlp.to_o11ycol.input]
+		traces  = [otelcol.exporter.otlp.to_o11ycol.input]
+		metrics = [otelcol.exporter.otlp.to_o11ycol.input]
+	}
+}
+
+// ============================= OTLP exporter
+otelcol.exporter.otlp "to_o11ycol" {
+	client {
+	    // endpoint = json_path(local.file.endpoints.content, ".ollycol.url")[0]
+		// endpoint = json_path(local.file.endpoints.content, ".ollycol.url_local")[0]
+		endpoint = json_path(local.file.endpoints.content, ".ollycol.url_test")[0]
+
+		tls {
+			// disables TLS when connecting to the server endpoint
+			// insecure = true
+
+			// Path to the CA file
+			// ca_file = "/etc/alloy/certs/egb-root-ca.crt"
+			ca_file = json_path(local.file.endpoints.content, ".ollycol.tls.ca_file_test")[0]
+		}
+	}
+
+	sending_queue {
+		num_consumers = 30
+		queue_size    = 1000
+	}
+}

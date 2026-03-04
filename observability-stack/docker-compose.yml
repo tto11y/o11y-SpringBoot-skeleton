@@ -31,6 +31,20 @@ services:
       - http_proxy=
       - HTTP_PROXY=
 
+  mimir:
+    image: grafana/mimir:3.0.2
+    command: ["-config.file=/etc/mimir.yaml", "-target=all"]
+    # Mimir needs a configuration file to start
+    volumes:
+      - ./mimir/mimir.yaml:/etc/mimir.yaml
+    # to prevent the environment variables http_proxy and https_proxy from interfering in the HTTP communication,
+    # we unset it manually
+    environment:
+      - https_proxy=
+      - HTTPS_PROXY=
+      - http_proxy=
+      - HTTP_PROXY=
+
   tempo:
     image: grafana/tempo:2.9.0
     # target=all runs Tempo in monolithic mode
@@ -74,9 +88,21 @@ services:
           orgId: 1
           url: http://prometheus:9090
           basicAuth: false
-          isDefault: true
+          isDefault: false
           version: 1
           editable: false
+        - name: Mimir
+          type: prometheus
+          orgId: 1
+          url: http://mimir:9009/prometheus
+          basicAuth: false
+          isDefault: true
+          editable: true
+          jsonData:
+            manageAlerts: true
+            allowAsRecordingRulesTarget: true
+            prometheusType: Mimir
+            mimirVersion: 3.0.8
         - name: Tempo
           type: tempo
           url: http://tempo:3200
@@ -100,15 +126,39 @@ services:
       - HTTP_PROXY=
 
   alloy:
+    container_name: myserver.local
     image: grafana/alloy:v1.11.1
     command: "run --server.http.listen-addr=0.0.0.0:12345 --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy"
     volumes:
       - ./alloy/config.alloy:/etc/alloy/config.alloy
       - ./alloy/endpoints.json:/etc/alloy/endpoints.json
+      - ./tls/myserver.crt:/etc/alloy/certs/myserver.crt
+      - ./tls/myserver.key:/etc/alloy/certs/myserver.key
     ports:
       - "12345:12345" # for debug frontend
-      - "4318:4318" # OTLP HTTP => http://localhost:4318
+      # - "4318:4318" # OTLP HTTP => http://localhost:4318
+      # - "4317:4317" # OTLP gRPC => http://localhost:4317
+      # - "9411:9411" # Zipkin (traces) => http://localhost:9411
+    # to prevent the environment variables http_proxy and https_proxy from interfering in the HTTP communication,
+    # we unset it manually
+    environment:
+      - https_proxy=
+      - HTTPS_PROXY=
+      - http_proxy=
+      - HTTP_PROXY=
+
+  sidecar-alloy:
+    image: grafana/alloy:v1.11.1
+    command: "run --server.http.listen-addr=0.0.0.0:64000 --storage.path=/var/lib/alloy/data /etc/alloy/sidecar.alloy"
+    volumes:
+      - ./sidecar-alloy/sidecar.alloy:/etc/alloy/sidecar.alloy
+      - ./sidecar-alloy/endpoints.json:/etc/alloy/endpoints.json
+      - ./tls/testCa.crt:/etc/alloy/certs/testCa.crt
+    ports:
+      - "64000:64000" # for debug frontend
+      # - "4318:4318" # OTLP HTTP => http://localhost:4318
       - "4317:4317" # OTLP gRPC => http://localhost:4317
+      - "9411:9411" # Zipkin (traces) => http://localhost:9411
     # to prevent the environment variables http_proxy and https_proxy from interfering in the HTTP communication,
     # we unset it manually
     environment:

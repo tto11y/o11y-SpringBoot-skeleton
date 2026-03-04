@@ -1,6 +1,19 @@
 {
+  "otlp_receiver": {
+    "grpc": {
+      "endpoint": "0.0.0.0:4317"
+    },
+    "http": {
+      "endpoint": "0.0.0.0:4318"
+    },
+    "tls": {
+      "cert_file": "/etc/alloy/certs/myserver.crt",
+      "key_file": "/etc/alloy/certs/myserver.key"
+    }
+  },
   "metrics": {
-    "url": "http://mimir:9009/otlp",
+    "url": "http://mimir:9009/api/v1/push",
+    "url_otlp": "http://mimir:9009/otlp",
     "basicAuth": {
       "username": "",
       "password": ""
